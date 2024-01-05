@@ -16,8 +16,143 @@
 	<body>
 		<div class="reveal">
 			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
+
+<section id="intro">
+	<h1>quasIPv6-only</h1>
+	<p><span class="fragment">la chèvre et le choux…</span><span class="fragment"> Mais <a href="https://www.kame.net/">la tortue qui bouge !</a></span></p>
+</section>
+<section>
+	<h3>IPv6-only ?</h3>
+	<p>Tous les sites sérieux sont aujourd'hui accessibles en IPv6.</p>
+	<p class="fragment">Enfin presque, à part github.com, www.marseille.fr et caf.fr…</p>
+</section>
+<section>
+	<p>D'après <a href="https://www.google.com/intl/en/ipv6/statistics.html#tab=per-country-ipv6-adoption">google</a>, en france 75% des accès sont en IPv6 (janvier 2024)</p>
+	<p class="fragment">Au moins un tiers des sites "les plus consultés"© sont accessibles en IPv6<span class="fragment">… pas le tien ? 😱</p>
+</section>
+<section>
+	<h2>Bref, il faut au moins commencer…</h2>
+	<p>Sauf que ça ajoute un niveau 3 à gérer</p>
+	<ul>
+	<li class="fragment">Distribution/allocation des adresses (facile)</li>
+	<li class="fragment">Filtrage (double travail)</li>
+	<li class="fragment">Monitoring (double travail)</li>
+	</ul>
+	</p>
+</section>
+<section>
+	<h2>Et si on enlève IPv4 ?</h2>
+	<p class="fragment">Pas (encore) partout… mais c'est assez simple
+	<ul class="fragment">
+	<li>Pour les serveurs «backend»</li>
+	<li>Pour les services internes à une structure dont les réseaux sont compatibles IPv6</li>
+	</ul>
+	</p>
+</section>
+<section>
+	<h2>TIPS serveur IPv6-only</h2>
+	<p>A connaître: <ul><li>Linux: <pre>sysctl net/ipv6/bindv6only #=0?</pre></li><li>FreeBSD: <pre>sysctl net.inet6.ip6.v6only #=1</pre></li></ul></p>
+	<p class="fragment">Java: <pre class="fragment">-Djava.net.preferIPv4Stack=false -Djava.net.preferIPv6addresses=true</pre></p>
+</section>
+<section>
+	<h2>Ok. mais j'ai besoin de faire un git clone depuis github sur mon «backend»</h2>
+	<div style="position:relative" >
+        <p class="fragment fade-in" style="position:absolute; margin-left: auto; margin-right: auto; left: 0; right: 0;" data-fragment-index="0">
+        En fait un serveur c'est un peu aussi un client parfois …
+        </p>
+        <p class="fragment fade-out" style="position:absolute; margin-left: auto; margin-right: auto; left: 0; right: 0;" data-fragment-index="0">
+        utilise framagit ! 😈
+        </p>
+    	</div>
+</section>
+<section>
+	<h1>Les «clients»</h1>
+	
+	<p><ol>
+		<li class="fragment"><b>Utilisateurs</b><span class="fragment"> (tip: ils s'en foutent s'ils ne connaissent pas la tortue)</span></li>
+		<li class="fragment"><b>Machines</b>: Deux types de problèmes
+		<ul>
+		<li class="fragment">Système récent (&lt; 15 ans) <b>et</b> code "agnostique"</li>
+		<li class="fragment">Système ancien <b>ou</b> code qui manipule de l'IPv4</li>
+		</ul></li>
+	</ol></p>
+</section>
+<section>
+	<h2>Client «récent»</h2>
+	<p>On utilise deux techniques
+	<ul>
+		<li class="fragment">DNS64 (<a href="https://www.rfc-editor.org/rfc/rfc6147">rfc6147</a>)
+			<pre><code>module-config: "dns64 validator iterator"
+dns64-prefix: 64:ff9b::/96     # well-known prefix (default)</code></pre>
+		</li>
+		<li class="fragment">NAT64 (<a href="https://www.rfc-editor.org/rfc/rfc6146">rfc6146</a>)
+			<pre><code>pass in quick inet6 from $myv6net to 64:ff9b::/96 af-to inet from (ext_if)</code></pre>
+		</li>
+</section>
+<section>
+	<h2>Les autres clients</h2>
+	<p><b>Le très vieux</b><span class="fragment">: Ben on va lui laisser de l'IPv4 !</span></p>
+</section>
+<section>
+	<h2>Les autres clients</h2>
+	<p>pour le cas de l'appli qui ouvre un socket IPv4 explicitement… (elle sont plusieurs)
+	<ul>
+		<li class="fragment">
+		On peut utiliser le CLAT (Customer-side address translator) défini dans 464XLAT (<a href="https://www.rfc-editor.org/rfc/rfc8677">rfc8677</a>) <span class="fragment">comme font les opérateurs mobiles tiens…</span>
+		</li>
+		<span class="fragment"> Si et seulement si on a un système compatible CLAT: Android©, IOS©, MacOSX©, Windows mais seulement avec un modem GSM</span>
+	</ul>
+</section>
+<section>
+	<h1>Test: ton mobile a-t-il de l'IPv4 ou juste 192.0.0.X ❓</h1>
+</section>
+<section>
+	<h2>Bon_ et comment on donne des IPv4 à certains clients et pas à d'autres ?</h2>
+	<p class="fragment">C'est le kit «IPv6-Mostly»:
+	<ul class="fragment">
+		<li><a href="https://www.rfc-editor.org/rfc/rfc8925">rfc8925</a> - dhcp option "IPv6-only prefered"</li>
+		<li><a href="https://www.rfc-editor.org/rfc/rfc8781">rfc8781</a> - router-advertisement pref64</li>
+		<li><a href="https://www.rfc-editor.org/rfc/rfc7050">rfc7050</a> - detection/validation du préfixe par le DNS</li>
+	</ul>
+</section>
+<section>
+	<h2>rfc7050</h2>
+	<h3>Détection et validation du préfixe IPv6 utilisé pour le CLAT</h3>
+<p>La seule <b>vraie</b> réponse pour ipv4only.arpa. est 192.0.0.170 (c000:00aa) et 192.0.0.171 (c000:00ab)</p>
+	<pre><code>
+(drill -t AAAA ipv4only.arpa.)> 2001:db8:64::c000:aa
+(-t PTR 2001:db8:64::c000:aa)> dns64.example.com
+(-t AAAA dns64.example.com.)> 2001:db8:64::c000:aa # préfixe validé
+(-t A dns64.example.com)> 192.0.2.80 # IPv4 pour test connectivité
+</code></pre>
+<pre class="fragment"><code>module-config: "dns64 validator iterator"
+#dns64-prefix: 64:ff9b::/96     # well-known prefix (default)
+#local-zone: "ipv4only.arpa." static
+#local-data: "ipv4only.arpa. IN AAAA 2a01:e0a:c21:64::c000:ab"
+#local-data: "ipv4only.arpa. IN AAAA 2a01:e0a:c21:64::c000:aa"
+</code></pre>
+</section>
+<section>
+	<h1>Ok. c'est compliqué, c'est poilu… je le veux à la maison ! Je fais comment ?</h1>
+</section>
+<section>
+	<h3>Ça tombe bien, avec ton routeur OpenBSD c'est assez simple:</h3>
+	<ul>
+	<li class="fragment">/etc/dhcpd.conf: <pre><code>option option-108 "43200"; # rfc8925</code></pre></li>
+	<li class="fragment">/etc/pf.conf: <pre><code>pass in quick inet6 from $myv6net to 64:ff9b::/96 af-to inet from ($ext_if)# rfc6146</code></pre></li>
+	<li class="fragment">/etc/rad.conf: <pre><code>nat64 prefix 64:ff9b::/96 # rfc8781</code></pre></li>
+	<li class="fragment">/var/unbound/etc/unbound.conf: comme au dessus</li>
+</section>
+<section>
+	<h1>HOWTO CLAT sous</h1>
+	<h2>Linux</h2>
+	<p>On peut installer <a href="https://github.com/toreanderson/clatd">clatd</a> qui utilise la <a href="https://www.rfc-editor.org/rfc/rfc7050">rfc7050</a> pour déterminer le préfixe à utiliser</p>
+	<h2>OpenBSD</h2>
+	<pre><code>pkg_add gelatod
+man gelatod</code></pre>
+</section>
+
+
 			</div>
 		</div>
 

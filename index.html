@@ -97,6 +97,12 @@
 			</li>
 	</section>
 	<section>
+		<h3>Comme dans 128 bits on peut en mettre 32</h3>
+		<p>github.com (140.82.121.3) devient PREFIXE::8c52:7903</p>
+		<p class="fragment">le DNS ajoute donc un enregistrement AAAA s'il n'existe pas, qui embarque l'IP contenue dans le A</p>
+		<p class="fragment">Le routeur va «reconnaitre» le préfix dédié et extraire l'IPv4 des 32 derniers bits</p>
+	</section>
+	<section>
 		<h2>Les autres clients</h2>
 		<p><b>Le très vieux</b><span class="fragment">: Ben on va lui laisser de l'IPv4 !</span></p>
 		<p class="fragment">Comme il ne va pas demander l'option DHCP 108 "IPv6-only prefered", il va prendre une IPv4.</p>
@@ -111,6 +117,16 @@
 			<span class="fragment"> Si et seulement si on a un système compatible CLAT: Android©, IOS©, MacOSX©</span><span class="fragment">, et même M$ Windows© 🤩</span><span class="fragment"> …mais <a href="https://techcommunity.microsoft.com/t5/windows-os-platform/clat-for-464xlat-for-lan-and-wireless/m-p/1303881">seulement avec un modem GSM 🤯</a></span></span>
 			</li>
 		</ul>
+	</section>
+	<section>
+		<h3>CLAT c'est quoi ?</h3>
+		<p class="fragment">C'est une autre façon d'utiliser notre «préfixe 64» (ou un autre d'ailleurs)
+			<ul>
+				<li class="fragment">le client «découvre» le préfixe (on y revient)</li>
+				<li class="fragment">Il crée une interface locale avec une IPv4 (192.0.0.0/29 - <a href="https://www.rfc-editor.org/rfc/rfc7335">rfc7335</a>)</li>
+				<li class="fragment">Les paquets sortent "traduits" en IPv6 (le routeur qui reconnaitra le préfixe fera suivre à l'IPv4 embarquée)</li>
+				<li class="fragment">-&gt; on peut <code>ping 8.8.8.8</ping></code></li>
+			</ul>
 	</section>
 	<section>
 		<h1>Test: ton mobile a-t-il de l'IPv4 ou juste 192.0.0.X ❓</h1>

@@ -165,15 +165,20 @@
 	<section>
 		<h3>Ça tombe bien, avec ton routeur OpenBSD c'est assez simple:</h3>
 		<ul>
-		<li class="fragment">/etc/dhcpd.conf: <pre><code>option option-108 "43200"; # rfc8925</code></pre></li>
+		<li class="fragment">/etc/dhcpd.conf: <pre><code>option option-108 00:00:0e:10; # rfc8925 - 3600s en hex</code></pre></li>
 		<li class="fragment">/etc/pf.conf: <pre><code>pass in quick inet6 from $myv6net to 64:ff9b::/96 af-to inet from ($ext_if)# rfc6146</code></pre></li>
 		<li class="fragment">/etc/rad.conf: <pre><code>nat64 prefix 64:ff9b::/96 # rfc8781</code></pre></li>
 		<li class="fragment">/var/unbound/etc/unbound.conf: comme au dessus</li>
 	</section>
-	<section>
+	<section id="debian">
 		<h1>HOWTO CLAT sous</h1>
 		<h2>Linux</h2>
 		<p>On peut installer <a href="https://github.com/toreanderson/clatd">clatd</a> qui utilise la <a href="https://www.rfc-editor.org/rfc/rfc7050">rfc7050</a> pour déterminer le préfixe à utiliser</p>
+		<p>dhclient (isc) connait l'option v6-only-preferred, mais il faut l'ajouter explicitement dans /etc/dhcp/dhclient.conf</p>
+		<p class="fragment">Si NetworkManager, il faut lui spécifier d'utiliser dhclient: <pre><code>[main]
+dhcp=dhclient</code></pre></p>
+	</section>
+	<section id="openbsd">
 		<h2>OpenBSD</h2>
 		<pre><code>pkg_add gelatod
 	man gelatod</code></pre>

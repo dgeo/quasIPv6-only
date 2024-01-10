@@ -158,7 +158,7 @@
 	</code></pre>
 	</section>
 </section>
-<section id="howto">
+<section id="howto-gw">
 	<section>
 		<h1>Ok. c'est compliqué, c'est poilu… je le veux à la maison ! Je fais comment ?</h1>
 	</section>
@@ -170,13 +170,19 @@
 		<li class="fragment">/etc/rad.conf: <pre><code>nat64 prefix 64:ff9b::/96 # rfc8781</code></pre></li>
 		<li class="fragment">/var/unbound/etc/unbound.conf: comme au dessus</li>
 	</section>
+</section>
+<section id="howto-client">
+	<section id="clat">
+		<h1>HOWTO CLAT</h1>
+	</section>
 	<section id="debian">
-		<h1>HOWTO CLAT sous</h1>
-		<h2>Linux</h2>
-		<p>On peut installer <a href="https://github.com/toreanderson/clatd">clatd</a> qui utilise la <a href="https://www.rfc-editor.org/rfc/rfc7050">rfc7050</a> pour déterminer le préfixe à utiliser</p>
-		<p>dhclient (isc) connait l'option v6-only-preferred, mais il faut l'ajouter explicitement dans /etc/dhcp/dhclient.conf</p>
-		<p class="fragment">Si NetworkManager, il faut lui spécifier d'utiliser dhclient: <pre><code>[main]
-dhcp=dhclient</code></pre></p>
+		<h2>Linux (debian)</h2>
+		<p><ul><li>On peut installer <a href="https://github.com/toreanderson/clatd">clatd</a> qui utilise la <a href="https://www.rfc-editor.org/rfc/rfc7050">rfc7050</a> pour déterminer le préfixe à utiliser</li>
+		<li class="fragment">dhclient (isc) connait l'option v6-only-preferred, mais il faut l'ajouter explicitement dans /etc/dhcp/dhclient.conf</li>
+		<li class="fragment">Si NetworkManager, il faut lui spécifier d'utiliser dhclient: <pre><code>[main]
+dhcp=dhclient</code></pre></li>
+		</ul>
+		</p>
 	</section>
 	<section id="openbsd">
 		<h2>OpenBSD</h2>

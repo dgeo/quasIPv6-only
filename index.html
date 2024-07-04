@@ -9,6 +9,7 @@
 		<link rel="stylesheet" href="dist/reset.css">
 		<link rel="stylesheet" href="dist/reveal.css">
 		<link rel="stylesheet" href="dist/theme/black.css">
+		<link rel="stylesheet" href="logo.css">
 
 		<!-- Theme used for syntax highlighted code -->
 		<link rel="stylesheet" href="plugin/highlight/monokai.css">
@@ -21,6 +22,7 @@
 	<section id="title">
 		<h1>quasIPv6-only</h1>
 		<p><span class="fragment">la chèvre et le choux…</span><span class="fragment"> Mais <a href="https://www.kame.net/">la tortue qui bouge !</a></span></p>
+		<p class="fragment"><a target="_blank" href="https://www.arcep.fr/fileadmin/reprise/observatoire/ipv6/Arcep_Barometre_2024_de_la_transition_vers_IPv6.pdf">Le baromètre IPv6 de l'ARCEP</a></p>
 	</section>
 	<section>
 		<h3>IPv6-only ?</h3>
@@ -28,13 +30,14 @@
 		<p class="fragment">Enfin presque, à part github.com, www.marseille.fr et caf.fr…</p>
 	</section>
 	<section>
-		<p>D'après <a href="https://www.google.com/intl/en/ipv6/statistics.html#tab=per-country-ipv6-adoption">google</a>, en france 75% des accès sont en IPv6 (janvier 2024)</p>
+		<p>D'après <a target="_blank" href="https://www.google.com/intl/en/ipv6/statistics.html#tab=per-country-ipv6-adoption">google</a>, en france 75% des accès sont en IPv6 (janvier 2024)</p>
 		<p class="fragment">Au moins un tiers des sites "les plus consultés"© sont accessibles en IPv6<span class="fragment">… pas le tien ? 😱</p>
 	</section>
 	<section>
 		<p>Question SSI toute bête: ok, tu ne gères pas IPv6… si j'annonce un routeur IPv6 sur un LAN il se passe quoi ?</p>
 		<p class="fragment">Encore plus rigolo: un routeur IPv6-only avec un DNS "DNS64" dans l'annonce et l'option "prefer64" ?</p>
 		<p class="fragment">(Oui, il existe du ra-guard, dhcpv6-snooping, nd-snooping… mais pas activé ça ne sert à rien)</p>
+		<p><a target="_blank" href="https://troopers.de/media/filer_public/cd/fb/cdfbe06d-c3b7-48a3-a697-9ae535646e2a/tr16_ipv6_sec_summit_hp_fhs_cwerny_v10.pdf">Une étude des mécanismes de sécurité LAN pour comware5/7</a></p>
 	</section>
 	<section>
 		<h2>Bref, il faut au moins commencer…</h2>
@@ -155,7 +158,11 @@
 	(-t AAAA dns64.example.com.)> 2001:db8:64::c000:aa # préfixe validé
 	(-t A dns64.example.com)> 192.0.2.80 # IPv4 pour test connectivité
 	</code></pre>
-	<pre class="fragment"><code>module-config: "dns64 validator iterator"
+	</section>
+        <section>
+	<h2>rfc7050 2/2</h2>
+	<p>unbound.conf</p>
+	<pre><code>module-config: "dns64 validator iterator"
 	#dns64-prefix: 64:ff9b::/96     # well-known prefix (default)
 	#local-zone: "ipv4only.arpa." static
 	#local-data: "ipv4only.arpa. IN AAAA 2a01:e0a:c21:64::c000:ab"
@@ -165,7 +172,7 @@
 </section>
 <section id="howto-gw">
 	<section>
-		<h1>Ok. c'est compliqué, c'est poilu… je le veux à la maison ! Je fais comment ?</h1>
+		<h2>Ok. c'est compliqué, c'est poilu… je le veux à la maison ! Je fais comment ?</h2>
 	</section>
 	<section>
 		<h3>Ça tombe bien, avec ton routeur OpenBSD c'est assez simple:</h3>
@@ -174,6 +181,14 @@
 		<li class="fragment">/etc/pf.conf: <pre><code>pass in quick inet6 from $myv6net to 64:ff9b::/96 af-to inet from ($ext_if)# rfc6146</code></pre></li>
 		<li class="fragment">/etc/rad.conf: <pre><code>nat64 prefix 64:ff9b::/96 # rfc8781</code></pre></li>
 		<li class="fragment">/var/unbound/etc/unbound.conf: comme au dessus</li>
+	</section>
+	<section>
+		<h3>Support inégal chez les "gros" constructeurs</h3>
+		<ul>
+			<li>rfc6146 (NAT64) chez cisco, juniper, F5…</li>
+			<li>rfc8781 (pref64 RA) chez cisco</li>
+			<li>Les autres sont en général implémentées en soft (bind/unbound/knot, isc-dhcp/kea/…)</li>
+		</ul>
 	</section>
 </section>
 <section id="howto-client">
